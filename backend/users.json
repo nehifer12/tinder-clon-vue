@@ -2490,5 +2490,28 @@
     "smokes": true,
     "hasChildren": true,
     "description": "Soy maria matuza val, me gusta escribir poesía y busco relación seria."
+  },
+  {
+    "id": 109,
+    "name": "marcela noriega salsedo",
+    "email": "marcelans@gmail.com",
+    "password": "1234",
+    "role": "user",
+    "city": "Chiquinquirá",
+    "age": 30,
+    "blocked": false,
+    "online": false,
+    "avatar": "https://randomuser.me/api/portraits/women/82.jpg",
+    "interests": [
+      "viajar",
+      "tocar guitarra",
+      "leer"
+    ],
+    "orientation": "bisexual",
+    "lookingFor": "compañía",
+    "drinks": false,
+    "smokes": true,
+    "hasChildren": true,
+    "description": "Soy marcela noriega salsedo, me gusta viajar y busco amistad."
   }
 ]

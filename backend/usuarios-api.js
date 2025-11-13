@@ -3,10 +3,8 @@ import seedrandom from "seedrandom";
 
 const router = express.Router();
 
-// === BASE DE DATOS EN MEMORIA === //
 let baseDeDatos = { usuarios: [] };
 
-// === DATOS DE APOYO === //
 const cities = [
   "Bogotá","Medellín","Cali","Barranquilla","Cartagena","Bucaramanga","Pereira",
   "Santa Marta","Cúcuta","Ibagué","Manizales","Villavicencio","Neiva",
@@ -21,7 +19,6 @@ const hobbies = ["leer","bailar","viajar","cocinar","hacer deporte","ver pelícu
 const orientations = ["heterosexual","homosexual","bisexual","pansexual","asexual"];
 const lookingFor = ["amistad","relación seria","aventura","compañía","conversar","algo casual"];
 
-// === FUNCIÓN PARA GENERAR USUARIOS ALEATORIOS === //
 function generateUsers(count = 100, seed = null) {
   if (seed) seedrandom(seed, { global: true });
 
@@ -57,17 +54,12 @@ function generateUsers(count = 100, seed = null) {
   return profiles;
 }
 
-// === INICIALIZAR BASE === //
 baseDeDatos.usuarios = generateUsers(100);
 
-// === RUTAS === //
-
-// Verificación rápida
 router.get("/", (req, res) => {
   res.send("🚀 API de usuarios activa correctamente");
 });
 
-// Listar todos los usuarios
 router.get("/users", (req, res) => {
   res.json({
     status: "success",
@@ -76,7 +68,6 @@ router.get("/users", (req, res) => {
   });
 });
 
-// Obtener un usuario por ID
 router.get("/user/:id", (req, res) => {
   const id = parseInt(req.params.id);
   const user = baseDeDatos.usuarios.find((u) => u.id === id);
@@ -85,7 +76,6 @@ router.get("/user/:id", (req, res) => {
   res.json({ status: "success", data: user });
 });
 
-// Agregar un nuevo usuario
 router.post("/user", (req, res) => {
   const { name, age, city, gender, interests } = req.body;
   if (!name || !age || !city)
@@ -110,19 +100,14 @@ router.post("/user", (req, res) => {
   });
 });
 
-// === BASE DE MENSAJES === //
 if (!baseDeDatos.mensajes) baseDeDatos.mensajes = [];
 
-// === RUTAS DE MENSAJES === //
-
-// Obtener mensajes recibidos por email
 router.get("/messages/:email", (req, res) => {
   const { email } = req.params;
   const mensajes = baseDeDatos.mensajes.filter(m => m.to === email);
   res.json({ status: "success", data: mensajes });
 });
 
-// Enviar un nuevo mensaje
 router.post("/messages", (req, res) => {
   const { from, to, content } = req.body;
 
@@ -146,5 +131,5 @@ router.post("/messages", (req, res) => {
     data: newMessage
   });
 });
-// === EXPORTAR ROUTER === //
+
 export default router;

@@ -2,6 +2,7 @@ import express from "express";
 import cors from "cors";
 import fs from "fs";
 import path from "path";
+import haversine from "haversine-distance";
 import { fileURLToPath } from "url";
 import { verificarEdad } from "./middlewares/verificarEdad.js";
 import { verificarReporte } from "./middlewares/verificarReporte.js";
@@ -113,6 +114,19 @@ const lookingFor = [
   "amistad", "relación seria", "aventura", "compañía", "conversar", "algo casual", "una cita divertida", 
   "nuevas experiencias", "viajar juntos", "conocer gente nueva", "una conexión real", "una relación estable"
 ];
+
+const cityCoordinates = {
+  "Bogotá": { lat: 4.711, lon: -74.0721 },
+  "Medellín": { lat: 6.2518, lon: -75.5636 },
+  "Cali": { lat: 3.4516, lon: -76.532 },
+  "Barranquilla": { lat: 10.9639, lon: -74.7964 },
+  "Cartagena": { lat: 10.391, lon: -75.4794 },
+  "Bucaramanga": { lat: 7.1193, lon: -73.1227 },
+  "Pereira": { lat: 4.8143, lon: -75.6946 },
+  "Santa Marta": { lat: 11.2408, lon: -74.199 },
+  "Manizales": { lat: 5.0703, lon: -75.5138 },
+  "Villavicencio": { lat: 4.142, lon: -73.6266 },
+};
 
 // === FUNCIÓN AUXILIAR: NOMBRE Y APELLIDOS === //
 function randomName(isMale) {
@@ -324,7 +338,41 @@ app.get("/api/users/:email/likes", (req, res) => {
   res.json(receivedLikes);
 });
 
-// === INICIAR SERVIDOR === //
+app.get("/api/users/nearby", (req, res) => {
+  const { city, lat, lon, maxDistance = 50 } = req.query;
+
+  // Si hay coordenadas (modo GPS)
+  if (lat && lon) {
+    const userLocation = { lat: parseFloat(lat), lon: parseFloat(lon) };
+
+    // Calcular distancia en km para cada usuario con ciudad registrada
+    const results = users
+      .map(u => {
+        const coords = cityCoordinates[u.city];
+        if (!coords) return null;
+        const distance = haversine(userLocation, coords) / 1000; // metros a km
+        return { ...u, distance: parseFloat(distance.toFixed(2)) };
+      })
+      .filter(u => u && u.distance <= maxDistance)
+      .sort((a, b) => a.distance - b.distance);
+
+    return res.json(results);
+  }
+
+  // Si solo hay ciudad
+  if (city) {
+    const normalizedCity = city.toLowerCase();
+    const nearby = users.filter(
+      u =>
+        u.city.toLowerCase() === normalizedCity ||
+        u.city.toLowerCase().includes(normalizedCity.slice(0, 4))
+    );
+    return res.json(nearby);
+  }
+
+  res.status(400).json({ error: "Debes enviar ciudad o coordenadas (lat, lon)" });
+});
+
 app.listen(PORT, () => {
   console.log(`✅ Servidor corriendo en http://localhost:${PORT}`);
 });
